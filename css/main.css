@@ -1,0 +1,157 @@
+body {
+    width: 45%;
+}
+
+.center {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+button {
+    background: none;
+}
+
+.refresh-button {
+    display: block;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    width: 20px;
+    height: 20px;
+}
+
+.current-place-container {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.current-place-main-info {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: space-around;
+}
+
+.current-place-main-info > div {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+}
+
+.current-place-weather-icon {
+    width: 100px;
+    height: 100px;
+}
+
+.current-place-temperature {
+    font-weight: bold;
+    font-size: 500%;
+}
+
+table {
+    border-collapse: separate;
+    border-spacing: 0 5px;
+}
+
+tr {
+    background: #a7afb1;
+}
+
+th {
+    text-align: start;
+}
+
+td {
+    text-align: end;
+}
+
+th, td {
+    padding: 8px;
+    color: white;
+}
+
+.favorites-header-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin: 60px 0 20px;
+}
+
+.favorites-header {
+    font-size: 200%;
+}
+
+.favorites-header-control-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 40%;
+}
+
+textarea {
+    background: #f8f8f8;
+    padding: 10px;
+    font-size: 130%;
+    resize: none;
+    margin-right: 10px;
+}
+
+.favorites-container {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.place-container {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: space-between;
+    margin: 10px 0 50px;
+}
+
+.current-place-main-info, .current-place-table, .place-container {
+    width: 350px;
+}
+
+.place-control {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.place-main-info {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 70%;
+}
+
+.place-name {
+    font-size: 150%;
+}
+
+.place-temperature {
+    font-weight: bolder;
+    font-size: 200%;
+}
+
+.place-weather-icon {
+    width: 40px;
+    height: 40px;
+}
+
+.add-button, .remove-button {
+    width: 30px;
+    height: 30px;
+}
