@@ -15,15 +15,11 @@ header, main {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     width: auto;
+    align-items: center;
 }
 
 button {
     background: none;
-}
-
-.refresh-button {
-    width: 20px;
-    height: 20px;
 }
 
 .current-place-container {
@@ -174,4 +170,39 @@ input {
 .add-button, .remove-button {
     width: 30px;
     height: 30px;
+}
+
+@media (min-width: 750px) {
+    .refresh-button::after {
+        content: "Обновить геолокацию";
+        font-size: 18px;
+        padding: 5px 10px 5px;
+        background: #c9d1d7;
+        border-radius: 4px;
+    }
+}
+
+@media (max-width: 750px) {
+    body {
+        max-width: 350px;
+    }
+
+    .head {
+        grid-template-columns: 2fr 1fr;
+    }
+
+    .refresh-button {
+        background-color: #c9d1d7;
+        padding: 0 10px 0;
+        border-radius: 4px;
+    }
+
+    .refresh-button::after {
+        content: "";
+        display: inline-block;
+        background-image: url("../images/refresh-button.png");
+        background-size: 30px 30px;
+        width: 30px;
+        height: 30px;
+    }
 }
