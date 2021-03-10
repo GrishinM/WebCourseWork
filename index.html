@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Weather</title>
+    <title>Погода</title>
     <link rel="stylesheet" href="css/reset.css">
     <link rel="stylesheet" href="css/main.css">
 </head>
@@ -10,40 +10,38 @@
     <header class="center">
         <div class="head">
             <h1>Погода здесь</h1>
-            <button class="center refresh-button">
-<!--                <img class="refresh-button" src="images/refresh-button.png" alt="">-->
-            </button>
+            <button class="center refresh-button" onclick="updateGeolocation()"></button>
         </div>
         <div class="current-place-container center">
-            <div class="current-place-main-info">
-                <h2>Санкт-Петербург</h2>
-                <div>
-                    <img class="current-place-weather-icon" src="images/cloud.png" alt="">
-                    <p class="current-place-temperature">8°C</p>
-                </div>
-            </div>
-            <table class="current-place-table">
-                <tr>
-                    <th>Ветер</th>
-                    <td>С-З, 15 м/с</td>
-                </tr>
-                <tr>
-                    <th>Облачность</th>
-                    <td>Сильная</td>
-                </tr>
-                <tr>
-                    <th>Давление</th>
-                    <td>1013 hpa</td>
-                </tr>
-                <tr>
-                    <th>Влажность</th>
-                    <td>52%</td>
-                </tr>
-                <tr>
-                    <th>Координаты</th>
-                    <td>[60.23, 56.13]</td>
-                </tr>
-            </table>
+            <!--            <div class="current-place-main-info">-->
+            <!--                <h2>Санкт-Петербург</h2>-->
+            <!--                <div>-->
+            <!--                    <img class="current-place-weather-icon" src="images/cloud.png" alt="">-->
+            <!--                    <p class="current-place-temperature">8°C</p>-->
+            <!--                </div>-->
+            <!--            </div>-->
+            <!--            <table class="current-place-table">-->
+            <!--                <tr>-->
+            <!--                    <th>Ветер</th>-->
+            <!--                    <td>С-З, 15 м/с</td>-->
+            <!--                </tr>-->
+            <!--                <tr>-->
+            <!--                    <th>Облачность</th>-->
+            <!--                    <td>Сильная</td>-->
+            <!--                </tr>-->
+            <!--                <tr>-->
+            <!--                    <th>Давление</th>-->
+            <!--                    <td>1013 hpa</td>-->
+            <!--                </tr>-->
+            <!--                <tr>-->
+            <!--                    <th>Влажность</th>-->
+            <!--                    <td>52%</td>-->
+            <!--                </tr>-->
+            <!--                <tr>-->
+            <!--                    <th>Координаты</th>-->
+            <!--                    <td>[60.23, 56.13]</td>-->
+            <!--                </tr>-->
+            <!--            </table>-->
         </div>
     </header>
     <main class="center">
@@ -51,149 +49,49 @@
             <h2 class="favorites-header">Избранное</h2>
             <div class="favorites-header-control-container">
                 <input type="text" placeholder="Добавить новый город">
-                <button>
-                    <img class="add-button" src="images/add-button.png" alt="">
+                <button onclick="addFavorite(input.value)">
+                    <img class="add-button" src="images/buttons/add-button.png" alt="">
                 </button>
             </div>
         </div>
         <ul class="favorites-container">
-            <li class="place-container">
-                <div class="place-control">
-                    <div class="place-main-info">
-                        <h3 class="place-name">Москва</h3>
-                        <p class="place-temperature">8°C</p>
-                        <img class="place-weather-icon" src="images/sun.png" alt="">
-                    </div>
-                    <button>
-                        <img class="remove-button" src="images/remove-button.png" alt="">
-                    </button>
-                </div>
-                <table>
-                    <tr>
-                        <th>Ветер</th>
-                        <td>С-З, 15 м/с</td>
-                    </tr>
-                    <tr>
-                        <th>Облачность</th>
-                        <td>Сильная</td>
-                    </tr>
-                    <tr>
-                        <th>Давление</th>
-                        <td>1013 hpa</td>
-                    </tr>
-                    <tr>
-                        <th>Влажность</th>
-                        <td>52%</td>
-                    </tr>
-                    <tr>
-                        <th>Координаты</th>
-                        <td>[60.23, 56.13]</td>
-                    </tr>
-                </table>
-            </li>
-            <li class="place-container">
-                <div class="place-control">
-                    <div class="place-main-info">
-                        <h3 class="place-name">Москва</h3>
-                        <p class="place-temperature">8°C</p>
-                        <img class="place-weather-icon" src="images/sun.png" alt="">
-                    </div>
-                    <button>
-                        <img class="remove-button" src="images/remove-button.png" alt="">
-                    </button>
-                </div>
-                <table>
-                    <tr>
-                        <th>Ветер</th>
-                        <td>С-З, 15 м/с</td>
-                    </tr>
-                    <tr>
-                        <th>Облачность</th>
-                        <td>Сильная</td>
-                    </tr>
-                    <tr>
-                        <th>Давление</th>
-                        <td>1013 hpa</td>
-                    </tr>
-                    <tr>
-                        <th>Влажность</th>
-                        <td>52%</td>
-                    </tr>
-                    <tr>
-                        <th>Координаты</th>
-                        <td>[60.23, 56.13]</td>
-                    </tr>
-                </table>
-            </li>
-            <li class="place-container">
-                <div class="place-control">
-                    <div class="place-main-info">
-                        <h3 class="place-name">Москва</h3>
-                        <p class="place-temperature">8°C</p>
-                        <img class="place-weather-icon" src="images/sun.png" alt="">
-                    </div>
-                    <button>
-                        <img class="remove-button" src="images/remove-button.png" alt="">
-                    </button>
-                </div>
-                <table>
-                    <tr>
-                        <th>Ветер</th>
-                        <td>С-З, 15 м/с</td>
-                    </tr>
-                    <tr>
-                        <th>Облачность</th>
-                        <td>Сильная</td>
-                    </tr>
-                    <tr>
-                        <th>Давление</th>
-                        <td>1013 hpa</td>
-                    </tr>
-                    <tr>
-                        <th>Влажность</th>
-                        <td>52%</td>
-                    </tr>
-                    <tr>
-                        <th>Координаты</th>
-                        <td>[60.23, 56.13]</td>
-                    </tr>
-                </table>
-            </li>
-            <li class="place-container">
-                <div class="place-control">
-                    <div class="place-main-info">
-                        <h3 class="place-name">Москва</h3>
-                        <p class="place-temperature">8°C</p>
-                        <img class="place-weather-icon" src="images/sun.png" alt="">
-                    </div>
-                    <button>
-                        <img class="remove-button" src="images/remove-button.png" alt="">
-                    </button>
-                </div>
-                <table>
-                    <tr>
-                        <th>Ветер</th>
-                        <td>С-З, 15 м/с</td>
-                    </tr>
-                    <tr>
-                        <th>Облачность</th>
-                        <td>Сильная</td>
-                    </tr>
-                    <tr>
-                        <th>Давление</th>
-                        <td>1013 hpa</td>
-                    </tr>
-                    <tr>
-                        <th>Влажность</th>
-                        <td>52%</td>
-                    </tr>
-                    <tr>
-                        <th>Координаты</th>
-                        <td>[60.23, 56.13]</td>
-                    </tr>
-                </table>
-            </li>
+            <!--            <li class="place-container">-->
+            <!--                <div class="place-control">-->
+            <!--                    <div class="place-main-info">-->
+            <!--                        <h3 class="place-name">Москва</h3>-->
+            <!--                        <p class="place-temperature">8°C</p>-->
+            <!--                        <img class="place-weather-icon" src="images/sun.png" alt="">-->
+            <!--                    </div>-->
+            <!--                    <button>-->
+            <!--                        <img class="remove-button" src="images/remove-button.png" alt="">-->
+            <!--                    </button>-->
+            <!--                </div>-->
+            <!--                <table>-->
+            <!--                    <tr>-->
+            <!--                        <th>Ветер</th>-->
+            <!--                        <td>С-З, 15 м/с</td>-->
+            <!--                    </tr>-->
+            <!--                    <tr>-->
+            <!--                        <th>Облачность</th>-->
+            <!--                        <td>Сильная</td>-->
+            <!--                    </tr>-->
+            <!--                    <tr>-->
+            <!--                        <th>Давление</th>-->
+            <!--                        <td>1013 hpa</td>-->
+            <!--                    </tr>-->
+            <!--                    <tr>-->
+            <!--                        <th>Влажность</th>-->
+            <!--                        <td>52%</td>-->
+            <!--                    </tr>-->
+            <!--                    <tr>-->
+            <!--                        <th>Координаты</th>-->
+            <!--                        <td>[60.23, 56.13]</td>-->
+            <!--                    </tr>-->
+            <!--                </table>-->
+            <!--            </li>-->
         </ul>
     </main>
+    <script src="js/weather.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>

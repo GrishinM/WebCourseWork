@@ -51,7 +51,7 @@ button {
 
 .current-place-temperature {
     font-weight: bold;
-    font-size: 500%;
+    font-size: 400%;
 }
 
 table {
@@ -200,7 +200,7 @@ input {
     .refresh-button::after {
         content: "";
         display: inline-block;
-        background-image: url("../images/refresh-button.png");
+        background-image: url("../images/buttons/refresh-button.png");
         background-size: 30px 30px;
         width: 30px;
         height: 30px;
