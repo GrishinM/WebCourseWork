@@ -4,16 +4,17 @@ let favoritesContainer = document.getElementsByClassName("favorites-container")[
 let input = document.getElementsByTagName("input")[0]
 
 function findWeatherByCoords(lat, lon) {
-    let query = `http://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${apiKey}&units=metric&lang=ru`
+    let query = `lat=${lat}&lon=${lon}`
     return findWeather(query)
 }
 
 function findWeatherByCity(cityName) {
-    let query = `http://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}&units=metric&lang=ru`
+    let query = `q=${cityName}`
     return findWeather(query)
 }
 
 function findWeather(query) {
+    query = `https://api.openweathermap.org/data/2.5/weather?${query}&appid=${apiKey}&units=metric&lang=ru`
     let xmlHttpRequest = new XMLHttpRequest()
     xmlHttpRequest.open("GET", query, false)
     xmlHttpRequest.send()
@@ -31,15 +32,12 @@ function replace(weather) {
 
 function updateGeolocation() {
     let geolocation = navigator.geolocation
-    let weather = null
     geolocation.getCurrentPosition(function (pos) {
         let coords = pos.coords
         replace(findWeatherByCoords(coords.latitude, coords.longitude))
     }, function () {
         replace(findWeatherByCity("Sankt-Peterburg"))
     })
-    // console.log(weather)
-    // replace(weatherToBigHtml(weather))
 }
 
 function addFavoriteToContainer(cityName) {
