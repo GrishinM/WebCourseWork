@@ -100,7 +100,7 @@ th, td {
     margin-top: 10px;
 }
 
-input {
+.city-input {
     background: #f8f8f8;
     padding: 10px;
     font-size: 120%;
@@ -173,7 +173,7 @@ input {
 }
 
 @media (min-width: 750px) {
-    .refresh-button::after {
+    .update-button::after {
         content: "Обновить геолокацию";
         font-size: 18px;
         padding: 5px 10px 5px;
@@ -191,13 +191,13 @@ input {
         grid-template-columns: 2fr 1fr;
     }
 
-    .refresh-button {
+    .update-button {
         background-color: #c9d1d7;
         padding: 0 10px 0;
         border-radius: 4px;
     }
 
-    .refresh-button::after {
+    .update-button::after {
         content: "";
         display: inline-block;
         background-image: url("../images/buttons/refresh-button.png");
