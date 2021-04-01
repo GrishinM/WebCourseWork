@@ -38,9 +38,10 @@ async function findWeather(query) {
     let response = await fetch(query).catch(r => {
         throw new Error("Проблемы с сервером")
     })
+    if (response.ok){
+        return response.json()
+    }
     switch (response.status) {
-        case 200:
-            return response.json()
         case 404:
             throw new Error("Нет такого места")
         default:
@@ -150,7 +151,6 @@ async function loadStorage(){
         }
         catch (e) {
             alert(e.message)
-            // loader.getElementsByTagName("h3")[0].innerText = "Произошла ошибка"
             loader.replaceWith(getFailedPlug())
             break
         }
