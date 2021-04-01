@@ -8,6 +8,7 @@ let currentPlaceTemplate = document.getElementById("current-place-container-temp
 let currentPlaceLoader = document.getElementById("current-place-loader").content.childNodes[1]
 let placeTemplate = document.getElementById("place-container-template").content.childNodes[1]
 let placeLoader = document.getElementById("place-loader").content.childNodes[1]
+let placeFailedPlug = document.getElementById("place-failed").content.childNodes[1]
 
 // localStorage.clear()
 
@@ -17,29 +18,29 @@ function degToCompass(num) {
     return arr[(val % 16)]
 }
 
-function findWeatherByCoords(lat, lon) {
+async function findWeatherByCoords(lat, lon) {
     let query = `lat=${lat}&lon=${lon}`
-    return findWeather(query)
+    return await findWeather(query)
 }
 
-function findWeatherByCity(cityName) {
+async function findWeatherByCity(cityName) {
     let query = `q=${cityName}`
-    return findWeather(query)
+    return await findWeather(query)
 }
 
-function findWeatherById(id) {
+async function findWeatherById(id) {
     let query = `id=${id}`
-    return findWeather(query)
+    return await findWeather(query)
 }
 
-function findWeather(query) {
+async function findWeather(query) {
     query = `https://api.openweathermap.org/data/2.5/weather?${query}&appid=${apiKey}&units=metric&lang=ru`
-    let xmlHttpRequest = new XMLHttpRequest()
-    xmlHttpRequest.open("GET", query, false)
-    xmlHttpRequest.send()
-    switch (xmlHttpRequest.status) {
+    let response = await fetch(query).catch(r => {
+        throw new Error("Проблемы с сервером")
+    })
+    switch (response.status) {
         case 200:
-            return JSON.parse(xmlHttpRequest.responseText)
+            return response.json()
         case 404:
             throw new Error("Нет такого места")
         default:
@@ -73,18 +74,18 @@ function replace(element) {
 
 function updateGeolocation() {
     replace(currentPlaceLoader.cloneNode(true))
-    geolocation.getCurrentPosition(function (pos) {
+    geolocation.getCurrentPosition(async function (pos) {
         let coords = pos.coords
         try {
-            replace(weatherToCurrentPlace(findWeatherByCoords(coords.latitude, coords.longitude)))
+            replace(weatherToCurrentPlace(await findWeatherByCoords(coords.latitude, coords.longitude)))
         }
         catch (e) {
             alert(e.message)
         }
-    }, function () {
+    }, async function () {
         alert("Невозможно определить геолокацию")
         try {
-            replace(weatherToCurrentPlace(findWeatherByCity("Sankt-Peterburg")))
+            replace(weatherToCurrentPlace(await findWeatherByCity("Sankt-Peterburg")))
         }
         catch (e) {
             alert(e.message)
@@ -101,7 +102,7 @@ function fillTable(element, weather) {
     td[4].innerText = `[${weather.coord.lon}, ${weather.coord.lat}]`
 }
 
-function addFavoriteToContainer(weather) {
+function addFavoriteToContainer(weather, loader) {
     let clone = placeTemplate.cloneNode(true)
     clone.id = weather.id
     clone.getElementsByTagName("h3")[0].innerText = weather.name
@@ -112,42 +113,63 @@ function addFavoriteToContainer(weather) {
         localStorage.removeItem(clone.id)
     })
     fillTable(clone, weather)
-    favoritesContainer.append(clone)
+    // favoritesContainer.append(clone)
+    loader.replaceWith(clone)
 }
 
-function addFavorite(cityName) {
+async function addFavorite(cityName) {
+    let loader = placeLoader.cloneNode(true)
+    favoritesContainer.append(loader)
     let weather = null
     try {
-        weather = findWeatherByCity(cityName)
+        weather = await findWeatherByCity(cityName)
     } catch (e) {
         alert(e.message)
+        loader.replaceWith(getFailedPlug())
         return
     }
     let id = weather.id
     if (localStorage.getItem(id) !== null) {
         alert("Это место уже в избранном")
+        loader.remove()
         return
     }
-    addFavoriteToContainer(weather)
+    addFavoriteToContainer(weather, loader)
     localStorage.setItem(id, "")
     form.reset()
 }
 
+async function loadStorage(){
+    for (let i = 0, len = localStorage.length; i < len; i++) {
+        let id = localStorage.key(i)
+        let loader = placeLoader.cloneNode(true)
+        favoritesContainer.append(loader)
+        let weather = null
+        try {
+            weather = await findWeatherById(id)
+        }
+        catch (e) {
+            alert(e.message)
+            // loader.getElementsByTagName("h3")[0].innerText = "Произошла ошибка"
+            loader.replaceWith(getFailedPlug())
+            break
+        }
+        addFavoriteToContainer(weather, loader)
+    }
+}
+
+function getFailedPlug(){
+    let plug = placeFailedPlug.cloneNode(true)
+    plug.getElementsByTagName("button")[0].addEventListener("click", function () {
+        plug.remove()
+    })
+    return plug
+}
+
 updateButton.addEventListener("click", updateGeolocation)
-form.addEventListener("submit", function (evt) {
-    addFavorite(form.elements["cityName"].value)
+form.addEventListener("submit", async function (evt) {
     evt.preventDefault()
+    await addFavorite(form.elements["cityName"].value)
 })
 updateGeolocation()
-for (let i = 0, len = localStorage.length; i < len; i++) {
-    let id = localStorage.key(i)
-    let weather = null
-    try {
-        weather = findWeatherById(id)
-    }
-    catch (e) {
-        alert(e.message)
-        break
-    }
-    addFavoriteToContainer(weather)
-}
+loadStorage()
