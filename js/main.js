@@ -1,4 +1,3 @@
-let apiKey = "2caa25b33aca9b478fd0640e40deb621"
 let geolocation = navigator.geolocation
 let updateButton = document.getElementsByClassName("update-button")[0]
 let currentPlaceContainer = document.getElementsByClassName("current-place-container")[0]
@@ -6,11 +5,10 @@ let favoritesContainer = document.getElementsByClassName("favorites-container")[
 let form = document.getElementsByTagName("form")[0]
 let currentPlaceTemplate = document.getElementById("current-place-container-template").content.childNodes[1]
 let currentPlaceLoader = document.getElementById("current-place-loader").content.childNodes[1]
+let currentPlaceFailed = document.getElementById("current-place-failed").content.childNodes[1]
 let placeTemplate = document.getElementById("place-container-template").content.childNodes[1]
 let placeLoader = document.getElementById("place-loader").content.childNodes[1]
-let placeFailedPlug = document.getElementById("place-failed").content.childNodes[1]
-
-// localStorage.clear()
+let placeFailed = document.getElementById("place-failed").content.childNodes[1]
 
 function degToCompass(num) {
     let val = Math.trunc((num / 22.5) + .5)
@@ -18,46 +16,34 @@ function degToCompass(num) {
     return arr[(val % 16)]
 }
 
-async function findWeatherByCoords(lat, lon) {
-    let query = `lat=${lat}&lon=${lon}`
-    return await findWeather(query)
-}
-
-async function findWeatherByCity(cityName) {
-    let query = `q=${cityName}`
-    return await findWeather(query)
-}
-
-async function findWeatherById(id) {
-    let query = `id=${id}`
-    return await findWeather(query)
-}
-
 async function findWeather(query) {
-    query = `https://api.openweathermap.org/data/2.5/weather?${query}&appid=${apiKey}&units=metric&lang=ru`
+    query = `/weather?${query}`
     let response = await fetch(query).catch(r => {
-        throw new Error("Проблемы с сервером")
+        throw new Error("Проблема с интернет-соединением")
     })
-    if (response.ok){
-        return response.json()
+    if (!response.ok) {
+        switch (response.status) {
+            case 404:
+                throw new Error("Нет такого места")
+            default:
+                throw new Error("Проблемы с сервером")
+        }
     }
-    switch (response.status) {
-        case 404:
-            throw new Error("Нет такого места")
-        default:
-            throw new Error("Проблемы с сервером")
-    }
+    return response.json()
 }
 
-// function replace(weather) {
-//     let clone = currentPlaceTemplate.content.childNodes[1].cloneNode(true)
-//     clone.getElementsByTagName("h2")[0].innerText = weather.name
-//     clone.getElementsByTagName("img")[0].src = `images/weather-icons/${weather.weather[0].icon}.png`
-//     clone.getElementsByTagName("p")[0].innerText = `${weather.main.temp.toFixed(1)}°C`
-//     fillTable(clone, weather)
-//     currentPlaceContainer.replaceWith(clone)
-//     currentPlaceContainer = clone
-// }
+async function findWeatherByCityName(cityName) {
+    let query = `q=${cityName}`
+    return await findWeather(`cityName=${cityName}`)
+}
+
+async function findWeatherByCityId(cityId) {
+    return await findWeather(`cityId=${cityId}`)
+}
+
+async function findWeatherByCoords(lat, lon) {
+    return await findWeather(`coords[lat]=${lat}&coords[lon]=${lon}`)
+}
 
 function weatherToCurrentPlace(weather) {
     let clone = currentPlaceTemplate.cloneNode(true)
@@ -79,17 +65,15 @@ function updateGeolocation() {
         let coords = pos.coords
         try {
             replace(weatherToCurrentPlace(await findWeatherByCoords(coords.latitude, coords.longitude)))
-        }
-        catch (e) {
-            alert(e.message)
+        } catch (e) {
+            replace(currentPlaceFailed.cloneNode(true))
         }
     }, async function () {
         alert("Невозможно определить геолокацию")
         try {
-            replace(weatherToCurrentPlace(await findWeatherByCity("Sankt-Peterburg")))
-        }
-        catch (e) {
-            alert(e.message)
+            replace(weatherToCurrentPlace(await findWeatherByCityName("Sankt-Peterburg")))
+        } catch (e) {
+            replace(currentPlaceFailed.cloneNode(true))
         }
     })
 }
@@ -111,55 +95,58 @@ function addFavoriteToContainer(weather, loader) {
     clone.getElementsByTagName("img")[0].src = `images/weather-icons/${weather.weather[0].icon}.png`
     clone.getElementsByTagName("button")[0].addEventListener("click", function () {
         clone.remove()
-        localStorage.removeItem(clone.id)
+        fetch(`/favorites?cityId=${clone.id}`, {method: "DELETE"})
     })
     fillTable(clone, weather)
-    // favoritesContainer.append(clone)
     loader.replaceWith(clone)
 }
 
 async function addFavorite(cityName) {
     let loader = placeLoader.cloneNode(true)
     favoritesContainer.append(loader)
-    let weather = null
-    try {
-        weather = await findWeatherByCity(cityName)
-    } catch (e) {
-        alert(e.message)
-        loader.replaceWith(getFailedPlug())
-        return
-    }
-    let id = weather.id
-    if (localStorage.getItem(id) !== null) {
+    let res = await fetch(`/favorites?cityName=${cityName}`, {method: "POST"})
+    if (res.status === 409) {
         alert("Это место уже в избранном")
         loader.remove()
         return
     }
+    let weather
+    try {
+        weather = await findWeatherByCityName(cityName)
+    } catch (e) {
+        alert(e.message)
+        loader.replaceWith(getFailedCard())
+        return
+    }
     addFavoriteToContainer(weather, loader)
-    localStorage.setItem(id, "")
     form.reset()
 }
 
-async function loadStorage(){
-    for (let i = 0, len = localStorage.length; i < len; i++) {
-        let id = localStorage.key(i)
+async function getFavoritesId() {
+    let res = await (await fetch("/favorites")).json()
+    return Array.from(res)
+}
+
+async function loadFavorites() {
+    let favoritesId = await getFavoritesId()
+    for (let id of favoritesId) {
+        // await addFavorite(findWeatherByCityId, id)
         let loader = placeLoader.cloneNode(true)
         favoritesContainer.append(loader)
-        let weather = null
+        let weather
         try {
-            weather = await findWeatherById(id)
-        }
-        catch (e) {
+            weather = await findWeatherByCityId(id)
+        } catch (e) {
             alert(e.message)
-            loader.replaceWith(getFailedPlug())
+            loader.replaceWith(getFailedCard())
             break
         }
         addFavoriteToContainer(weather, loader)
     }
 }
 
-function getFailedPlug(){
-    let plug = placeFailedPlug.cloneNode(true)
+function getFailedCard() {
+    let plug = placeFailed.cloneNode(true)
     plug.getElementsByTagName("button")[0].addEventListener("click", function () {
         plug.remove()
     })
@@ -172,4 +159,4 @@ form.addEventListener("submit", async function (evt) {
     await addFavorite(form.elements["cityName"].value)
 })
 updateGeolocation()
-loadStorage()
+loadFavorites()
