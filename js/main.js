@@ -8,7 +8,6 @@ let currentPlaceLoader = document.getElementById("current-place-loader").content
 let currentPlaceFailed = document.getElementById("current-place-failed").content.childNodes[1]
 let placeTemplate = document.getElementById("place-container-template").content.childNodes[1]
 let placeLoader = document.getElementById("place-loader").content.childNodes[1]
-let placeFailed = document.getElementById("place-failed").content.childNodes[1]
 
 function degToCompass(num) {
     let val = Math.trunc((num / 22.5) + .5)
@@ -18,22 +17,21 @@ function degToCompass(num) {
 
 async function findWeather(query) {
     query = `/weather?${query}`
-    let response = await fetch(query).catch(r => {
+    let res = await fetch(query).catch(r => {
         throw new Error("Проблема с интернет-соединением")
     })
-    if (!response.ok) {
-        switch (response.status) {
+    if (!res.ok) {
+        switch (res.status) {
             case 404:
                 throw new Error("Нет такого места")
             default:
                 throw new Error("Проблемы с сервером")
         }
     }
-    return response.json()
+    return res.json()
 }
 
 async function findWeatherByCityName(cityName) {
-    let query = `q=${cityName}`
     return await findWeather(`cityName=${cityName}`)
 }
 
@@ -93,9 +91,13 @@ function addFavoriteToContainer(weather, loader) {
     clone.getElementsByTagName("h3")[0].innerText = weather.name
     clone.getElementsByTagName("p")[0].innerText = `${weather.main.temp.toFixed(1)}°C`
     clone.getElementsByTagName("img")[0].src = `images/weather-icons/${weather.weather[0].icon}.png`
-    clone.getElementsByTagName("button")[0].addEventListener("click", function () {
+    clone.getElementsByTagName("button")[0].addEventListener("click", async function () {
+        let res = await fetch(`/favorites?cityId=${clone.id}`, {method: "DELETE"})
+        if (!res.ok) {
+            alert("Проблемы с сервером")
+            return
+        }
         clone.remove()
-        fetch(`/favorites?cityId=${clone.id}`, {method: "DELETE"})
     })
     fillTable(clone, weather)
     loader.replaceWith(clone)
@@ -104,33 +106,38 @@ function addFavoriteToContainer(weather, loader) {
 async function addFavorite(cityName) {
     let loader = placeLoader.cloneNode(true)
     favoritesContainer.append(loader)
-    let res = await fetch(`/favorites?cityName=${cityName}`, {method: "POST"})
-    if (res.status === 409) {
-        alert("Это место уже в избранном")
-        loader.remove()
-        return
-    }
     let weather
     try {
         weather = await findWeatherByCityName(cityName)
     } catch (e) {
         alert(e.message)
-        loader.replaceWith(getFailedCard())
+        loader.remove()
+        return
+    }
+    let res = await fetch(`/favorites?cityId=${weather.id}`, {method: "POST"})
+    if (!res.ok) {
+        switch (res.status) {
+            case 409:
+                alert("Это место уже в избранном")
+                break
+            default:
+                alert("Проблемы с сервером")
+                break
+        }
+        loader.remove()
         return
     }
     addFavoriteToContainer(weather, loader)
     form.reset()
 }
 
-async function getFavoritesId() {
-    let res = await (await fetch("/favorites")).json()
-    return Array.from(res)
-}
-
 async function loadFavorites() {
-    let favoritesId = await getFavoritesId()
-    for (let id of favoritesId) {
-        // await addFavorite(findWeatherByCityId, id)
+    let res = await fetch("/favorites")
+    if (!res.ok) {
+        alert("Проблемы с сервером")
+    }
+    let ids = Array.from(await res.json())
+    for (let id of ids) {
         let loader = placeLoader.cloneNode(true)
         favoritesContainer.append(loader)
         let weather
@@ -138,19 +145,11 @@ async function loadFavorites() {
             weather = await findWeatherByCityId(id)
         } catch (e) {
             alert(e.message)
-            loader.replaceWith(getFailedCard())
+            loader.remove()
             break
         }
         addFavoriteToContainer(weather, loader)
     }
-}
-
-function getFailedCard() {
-    let plug = placeFailed.cloneNode(true)
-    plug.getElementsByTagName("button")[0].addEventListener("click", function () {
-        plug.remove()
-    })
-    return plug
 }
 
 updateButton.addEventListener("click", updateGeolocation)
