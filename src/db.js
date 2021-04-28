@@ -1,26 +1,26 @@
-const MongoClient = require("mongodb").MongoClient
+const MongoClient = require("mongodb").MongoClient;
 
-let db
-const mongoClient = new MongoClient(process.env.connectionString)
+let db;
+const mongoClient = new MongoClient(process.env.connectionString);
 mongoClient.connect(function (err, client) {
-    db = client.db("weather").collection("favorites")
-})
+    db = client.db("weather").collection("favorites");
+});
 
 async function isCityInBase(cityId) {
-    let res = await db.find({cityId: cityId}).toArray()
-    return res.length > 0
+    let res = await db.find({cityId: cityId}).toArray();
+    return res.length > 0;
 }
 
 async function getFavoritesId() {
-    return Array.from(await db.find().toArray()).map(x => x.cityId)
+    return Array.from(await db.find().toArray()).map(x => x.cityId);
 }
 
 async function addToFavorites(cityId) {
-    await db.insertOne({cityId: cityId})
+    await db.insertOne({cityId: cityId});
 }
 
 async function removeFromFavorites(cityId) {
-    await db.deleteOne({cityId: cityId})
+    await db.deleteOne({cityId: cityId});
 }
 
 module.exports = {
@@ -28,4 +28,4 @@ module.exports = {
     getFavoritesId: getFavoritesId,
     addToFavorites: addToFavorites,
     removeFromFavorites: removeFromFavorites
-}
+};
